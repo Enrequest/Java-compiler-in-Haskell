@@ -33,7 +33,7 @@ s (x:xs) | isWhitespace x = s xs
          | isSeparator x  = ("separator",[x],xs)
          | x == '/'       = let (str,ws,zs) = slash xs
                               in if str == "operator" then (str,x:ws,zs)
-                                 else (str,[],xs)
+                                 else (str,[],zs)
          | otherwise      = let (str,ws,zs) = a xs     in (str,x:ws,zs)
 
 d::String -> (String, String, String)
