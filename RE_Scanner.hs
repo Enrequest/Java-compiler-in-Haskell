@@ -48,5 +48,5 @@ a xs = ([], xs)
 
 isWhitespace x = elem x [' ','\n','\t','\r']
 isDigit x = elem x "0123456789"
-isWord  x = elem x "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789"
+isWord  x = elem x "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 isDelimiter x = elem x ".,;{}[]()*/+-=&|"
