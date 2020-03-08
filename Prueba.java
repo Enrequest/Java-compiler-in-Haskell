@@ -30,6 +30,11 @@ public class Prueba {
 		esto efectivamente no sirve.
 		*/
 		String result = "exitos";
+		char myBeatifulCharacter = 'I';
+		char g = 'l','d','a','r';
+		char h = '\n'
+		//300iq win 	IOI 2020.
+		String str = "Ildar Gainulin will win 	IOI 	2020, down Benjamin Qui";
 	}
 } 
 //This is my commentary.

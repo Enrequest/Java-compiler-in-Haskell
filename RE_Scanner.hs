@@ -1,9 +1,9 @@
 module Scanner where
 main:: IO()
 main = do
-       contents <- readFile "Prueba.java"
-       let lista = scanner contents
-       putStr (show lista)
+        contents <- readFile "Prueba.java"
+        let lista = scanner contents
+        print lista
 
 data Symbol = ReservedWord   String
             | Separator      Char
@@ -11,7 +11,7 @@ data Symbol = ReservedWord   String
             | Identifier     String
             | IntegerLiteral String
             | StringLiteral  String
-            | CharLiteral    Char
+            | CharLiteral    String
         deriving (Show)
 
 scanner:: String -> [Symbol]
@@ -24,6 +24,7 @@ scanner xs =
                 "operator"  -> (Operator ws):scanner zs
                 "separator" -> (Separator (head ws)):scanner zs
                 "string"    -> (StringLiteral ws):scanner zs
+                "character" -> (CharLiteral ws):scanner zs
                 _ -> scanner zs
              where
                  (rs, ws, zs) = s xs
@@ -40,6 +41,7 @@ s (x:xs) | isWhitespace x = s xs
                                  else (str,[],zs)
          | isOperator  x  = let (str,ws,zs) = a xs  in (str,x:ws,zs)
          | x == '\"'      = let (str,ws,zs) = readStr xs in (str,x:ws,zs)
+         | x == '\''      = let (str,ws,zs) = readChar xs in (str,x:ws,zs) 
          | otherwise      = error "\nInvalid character\n"
 
 d::String -> (String, String, String)
@@ -84,6 +86,20 @@ readStr:: String -> (String,String,String)
 readStr ys@[] = ("string",ys,ys)
 readStr ys@(x:xs) | x == '\"' = ("string",[x],xs)
                   | otherwise = let (str,ws,zs) = readStr xs in (str,x:ws,zs)
+
+readChar:: String -> (String,String,String)
+readChar ys@[] = error "\nInvalid character\n"
+readChar ys@(x:xs) |x == '\\' = let (str,ws,zs) = verifyChar2 xs in (str,x:ws,zs)
+                   |otherwise = let (str,ws,zs) = verifyChar xs in (str,x:ws,zs)
+
+verifyChar:: String -> (String,String,String)
+verifyChar ys@[] = error "\nInvalid character, you don't define the character\n"
+verifyChar ys@(x:xs) | x == '\'' = ("character",[x],xs)
+                     | otherwise = error "\nInvalid character, you don't define the character\n"
+
+verifyChar2:: String -> (String,String,String)
+verifyChar2 ys@[] = error "\nInvalid character, you don't define the character\n"
+verifyChar2 ys@(x:xs) = let (str,ws,zs) = verifyChar xs in (str,x:ws,zs)
 
 isWhitespace   x = elem x [' ','\n','\t','\r']
 isDigit        x = elem x "0123456789"
