@@ -21,7 +21,7 @@ public class Prueba {
 			abc ac acbc acb aob a2b a42c A87d habcbcbc a 
 		*/
 		if (n1==n2){
-			//System.out.println("Hola Mundo");
+			System.out.println("Hola Mundo");
 			i++;
 			--j;
 		}
@@ -29,7 +29,7 @@ public class Prueba {
 		/* int a = b;
 		esto efectivamente no sirve.
 		*/
-		//String result = "exitos";
+		String result = "exitos";
 	}
 } 
 //This is my commentary.

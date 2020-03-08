@@ -18,11 +18,12 @@ scanner:: String -> [Symbol]
 scanner [] = []
 scanner xs = 
              case rs of 
-                "digit" -> (IntegerLiteral ws):scanner zs
-                "reserved" -> (ReservedWord ws):scanner zs
-                "word"  -> (Identifier ws):scanner zs
-                "operator" -> (Operator ws):scanner zs
+                "digit"     -> (IntegerLiteral ws):scanner zs
+                "reserved"  -> (ReservedWord ws):scanner zs
+                "word"      -> (Identifier ws):scanner zs
+                "operator"  -> (Operator ws):scanner zs
                 "separator" -> (Separator (head ws)):scanner zs
+                "string"    -> (StringLiteral ws):scanner zs
                 _ -> scanner zs
              where
                  (rs, ws, zs) = s xs
@@ -38,6 +39,7 @@ s (x:xs) | isWhitespace x = s xs
                               in if str == "operator" then (str,x:ws,zs)
                                  else (str,[],zs)
          | isOperator  x  = let (str,ws,zs) = a xs  in (str,x:ws,zs)
+         | x == '\"'      = let (str,ws,zs) = readStr xs in (str,x:ws,zs)
          | otherwise      = error "\nInvalid character\n"
 
 d::String -> (String, String, String)
@@ -78,6 +80,11 @@ a ys@[]  = ("operator",ys,ys)
 a ys@(x:xs) | isOperator x = ("operator",[x],xs)
          | otherwise    = ("operator",[],ys)
 
+readStr:: String -> (String,String,String)
+readStr ys@[] = ("string",ys,ys)
+readStr ys@(x:xs) | x == '\"' = ("string",[x],xs)
+                  | otherwise = let (str,ws,zs) = readStr xs in (str,x:ws,zs)
+
 isWhitespace   x = elem x [' ','\n','\t','\r']
 isDigit        x = elem x "0123456789"
 isWord         x = elem x "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -86,7 +93,7 @@ isSeparator    x = elem x ".,;{}[]()"
 isOperator     x = elem x "*/+-=&|<>"
 isReservedWord::String -> Bool
 isReservedWord x = elem x ["abstract","assert","boolean","break","byte","case","catch","char","class","const",
-                               "default","do","double","else","enum","extends","false","final","finally","float",
-                               "gota","if","implements","import","instanceof","int","interface","long","native",
-                               "new","null","package","private","protected","public","return","static","super",
-                               "throw","throws","true","try","void","while","continue"]
+                           "default","do","double","else","enum","extends","false","final","finally","float",
+                           "gota","if","implements","import","instanceof","int","interface","long","native",
+                           "new","null","package","private","protected","public","return","static","super",
+                           "throw","throws","true","try","void","while","continue"]
