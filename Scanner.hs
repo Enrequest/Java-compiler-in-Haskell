@@ -27,34 +27,33 @@ scanner xs =
                 "character" -> (CharLiteral ws):scanner zs
                 _ -> scanner zs
              where
-                 (rs, ws, zs) = s xs
-s:: String -> (String, String, String)
-s ys@[] = (ys,ys,ys)
-s (x:xs) | isWhitespace x = s xs
-         | isDigit x      = let (str,ws,zs) = d xs     in (str,x:ws,zs)
-         | isWord  x      = let (str,ws,zs) = w xs     
+                 (rs, ws, zs) = sourceState xs
+sourceState:: String -> (String, String, String)
+sourceState ys@[] = (ys,ys,ys)
+sourceState (x:xs) | isWhitespace x = sourceState xs
+                   | isDigit x      = let (str,ws,zs) = digitState xs     in (str,x:ws,zs)
+                   | isWord  x      = let (str,ws,zs) = wordState xs     
                             in if isReservedWord (x:ws) then ("reserved",x:ws,zs)
                                else (str,x:ws,zs)
-         | isSeparator x  = ("separator",[x],xs)
-         | x == '/'       = let (str,ws,zs) = slash xs
+                   | isSeparator x  = ("separator",[x],xs)
+                   | x == '/'       = let (str,ws,zs) = slash xs
                               in if str == "operator" then (str,x:ws,zs)
                                  else (str,[],zs)
-         | isOperator  x  = let (str,ws,zs) = a xs  in (str,x:ws,zs)
-         | x == '\"'      = let (str,ws,zs) = readStr xs in (str,x:ws,zs)
-         | x == '\''      = let (str,ws,zs) = readChar xs in (str,x:ws,zs) 
-         | otherwise      = error "\nInvalid character\n"
+                   | isOperator  x  = let (str,ws,zs) = operatorState xs  in (str,x:ws,zs)
+                   | x == '\"'      = let (str,ws,zs) = readStr xs in (str,x:ws,zs)
+                   | x == '\''      = let (str,ws,zs) = readChar xs in (str,x:ws,zs) 
+                   | otherwise      = error "\nInvalid character\n"
 
-d::String -> (String, String, String)
-d ys@[] = ("digit",ys,ys)
-d ys@(x:xs) 
-            | isLetter x = error "\nIs not a valid identifier\n" 
-            | isDigit x  =  let (str,ws,zs) = d xs in (str,x:ws,zs)
-            | otherwise  = ("digit",[], ys)
+digitState::String -> (String, String, String)
+digitState ys@[] = ("digit",ys,ys)
+digitState ys@(x:xs) | isLetter x = error "\nIs not a valid identifier\n" 
+                     | isDigit x  =  let (str,ws,zs) = digitState xs in (str,x:ws,zs)
+                     | otherwise  = ("digit",[], ys)
 
-w::String -> (String, String, String)
-w ys@[] = ("word",ys,ys)
-w ys@(x:xs) | isWord x  =  let (str,ws,zs) = w xs in (str,x:ws,zs)
-            | otherwise = ("word",[],ys)
+wordState::String -> (String, String, String)
+wordState ys@[] = ("word",ys,ys)
+wordState ys@(x:xs) | isWord x  =  let (str,ws,zs) = wordState xs in (str,x:ws,zs)
+                    | otherwise = ("word",[],ys)
 
 slash::String -> (String, String, String)
 slash ys@(x:xs) | x == '/'  = lineCommentary xs
@@ -77,10 +76,10 @@ star ys@(x:xs) | x == '/' = ([],[],xs)
                | x == '*' = star xs
                | otherwise = largeCommentary xs
 
-a:: String -> (String, String, String)
-a ys@[]  = ("operator",ys,ys)
-a ys@(x:xs) | isOperator x = ("operator",[x],xs)
-         | otherwise    = ("operator",[],ys)
+operatorState:: String -> (String, String, String)
+operatorState ys@[]  = ("operator",ys,ys)
+operatorState ys@(x:xs) | isOperator x = ("operator",[x],xs)
+                        | otherwise    = ("operator",[],ys)
 
 readStr:: String -> (String,String,String)
 readStr ys@[] = ("string",ys,ys)
