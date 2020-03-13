@@ -32,14 +32,16 @@ sourceState:: String -> (String, String, String)
 sourceState ys@[] = (ys,ys,ys)
 sourceState (x:xs) | isWhitespace x = sourceState xs
                    | isDigit x      = let (str,ws,zs) = digitState xs     in (str,x:ws,zs)
-                   | isWord  x      = let (str,ws,zs) = wordState xs     
+                   | isLetter  x    = let (str,ws,zs) = wordState xs     
                             in if isReservedWord (x:ws) then ("reserved",x:ws,zs)
                                else (str,x:ws,zs)
                    | isSeparator x  = ("separator",[x],xs)
                    | x == '/'       = let (str,ws,zs) = slash xs
                               in if str == "operator" then (str,x:ws,zs)
                                  else (str,[],zs)
-                   | isOperator  x  = let (str,ws,zs) = operatorState xs  in (str,x:ws,zs)
+                   | isSingleOperator  x  = let (str,ws,zs) = operatorState xs  
+                            in if isOperator (x:ws) then ("operator",x:ws,zs)
+                               else error ("\nInvalid operator "++(x:ws))
                    | x == '\"'      = let (str,ws,zs) = readStr xs in (str,x:ws,zs)
                    | x == '\''      = let (str,ws,zs) = readChar xs in (str,x:ws,zs) 
                    | otherwise      = error "\nInvalid character\n"
@@ -56,29 +58,31 @@ wordState ys@(x:xs) | isWord x  =  let (str,ws,zs) = wordState xs in (str,x:ws,z
                     | otherwise = ("word",[],ys)
 
 slash::String -> (String, String, String)
-slash ys@(x:xs) | x == '/'  = lineCommentary xs
-                | x == '*'  = largeCommentary xs
+slash ys@(x:xs) | x == '/'  = endOfLineComment xs
+                | x == '*'  = commentTail xs
+                | x == '='  = ("operator",[x],xs)
+                | isSingleOperator x = error "\nInvalid Operator\n"
                 | otherwise = ("operator",[],ys)
 
-lineCommentary::String -> (String, String, String)
-lineCommentary ys@[] = ("commentary",ys,ys)
-lineCommentary ys@(x:xs) | x == '\n' = ("commentary",[],xs)
-                         | otherwise = lineCommentary xs
+endOfLineComment::String -> (String, String, String)
+endOfLineComment ys@[] = ("commentary",ys,ys)
+endOfLineComment ys@(x:xs) | x == '\n' = ("commentary",[],xs)
+                           | otherwise = endOfLineComment xs
 
-largeCommentary::String -> (String, String, String)
-largeCommentary ys@[] = (ys,ys,ys)
-largeCommentary ys@(x:xs) | x == '*' = star xs
-                          | otherwise = largeCommentary xs
+commentTail::String -> (String, String, String)
+commentTail ys@[] = (ys,ys,ys)
+commentTail ys@(x:xs) | x == '*'  = commentTailStar xs
+                      | otherwise = commentTail xs
 
-star::String -> (String, String, String)
-star ys@[] = (ys,ys,ys)
-star ys@(x:xs) | x == '/' = ([],[],xs)
-               | x == '*' = star xs
-               | otherwise = largeCommentary xs
+commentTailStar::String -> (String, String, String)
+commentTailStar ys@[] = (ys,ys,ys)
+commentTailStar ys@(x:xs) | x == '/'  = ([],[],xs)
+                          | x == '*'  = commentTailStar xs
+                          | otherwise = commentTail xs
 
 operatorState:: String -> (String, String, String)
 operatorState ys@[]  = ("operator",ys,ys)
-operatorState ys@(x:xs) | isOperator x = ("operator",[x],xs)
+operatorState ys@(x:xs) | isSingleOperator x = let (str,ws,zs) = operatorState xs in (str,x:ws,zs)
                         | otherwise    = ("operator",[],ys)
 
 readStr:: String -> (String,String,String)
@@ -105,7 +109,11 @@ isDigit        x = elem x "0123456789"
 isWord         x = elem x "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 isLetter       x = elem x "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 isSeparator    x = elem x ".,;{}[]()"
-isOperator     x = elem x "*/+-=&|<>"
+isSingleOperator x = elem x "=><!~?:-&~%^*/+|"
+isOperator     x = elem x ["=",  ">",  "<",  "!",  "~",  "?",  ":",  "->",
+                           "==", ">=", "<=", "!=", "&&", "||", "++", "--",
+                           "+",  "-",  "*",  "/",  "&",  "|",  "^",  "%",  "<<",  ">>",  ">>>",
+                           "+=", "-=", "*=", "/=", "&=", "|=", "^=", "%=", "<<=", ">>=", ">>>="]
 isReservedWord::String -> Bool
 isReservedWord x = elem x ["abstract","assert","boolean","break","byte","case","catch","char","class","const",
                            "default","do","double","else","enum","extends","false","final","finally","float",
