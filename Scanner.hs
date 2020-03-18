@@ -37,8 +37,9 @@ sourceState (x:xs) | isWhitespace x = sourceState xs
                                else (str,x:ws,zs)
                    | isSeparator x  = ("separator",[x],xs)
                    | x == '/'       = let (str,ws,zs) = slash xs
-                              in if str == "operator" then (str,x:ws,zs)
-                                 else (str,[],zs)
+                              in if isOperator (x:ws) then ("operator",x:ws,zs)
+                                 else if str == "commentary" then (str,[],zs)
+                                      else error ("\nInvalid operator "++(x:ws))
                    | isSingleOperator  x  = let (str,ws,zs) = operatorState xs  
                             in if isOperator (x:ws) then ("operator",x:ws,zs)
                                else error ("\nInvalid operator "++(x:ws))
@@ -60,9 +61,7 @@ wordState ys@(x:xs) | isWord x  =  let (str,ws,zs) = wordState xs in (str,x:ws,z
 slash::String -> (String, String, String)
 slash ys@(x:xs) | x == '/'  = endOfLineComment xs
                 | x == '*'  = commentTail xs
-                | x == '='  = ("operator",[x],xs)
-                | isSingleOperator x = error "\nInvalid Operator\n"
-                | otherwise = ("operator",[],ys)
+                | otherwise = let (str,ws,zs) = operatorState xs in (str,x:ws,zs)
 
 endOfLineComment::String -> (String, String, String)
 endOfLineComment ys@[] = ("commentary",ys,ys)

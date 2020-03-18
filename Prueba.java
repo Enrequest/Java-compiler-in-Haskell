@@ -11,7 +11,7 @@ public class Prueba {
 		int number>>>=13;
 		//int number *^ 45;
 		//int 3_n=34;
-		int n1/===2;
+		int n1/=2;
 		/* 800-10-1414
 		   754.12.1616
 		   123*14*1423
