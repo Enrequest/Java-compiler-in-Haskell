@@ -42,7 +42,9 @@ sourceState (x:xs) | isWhitespace x = sourceState xs
                    | x == '/'       = let (str,ws,zs) = slash xs
                               in if str == "operator" then (str,x:ws,zs)
                                  else (str,[],zs)
-                   | isOperator  x  = let (str,ws,zs) = operatorState xs  in (str,x:ws,zs)
+                   | isSingleOperator  x  = let (str,ws,zs) = operatorState xs
+                            in  if isOperator (x:ws) then ("operator",x:ws,zs)
+                                else error ("\nInvalid operator "++(x:ws))
                    | otherwise      = error "\nInvalid character\n"
 
 digitState::String -> (String, String, String)
@@ -76,7 +78,7 @@ endOfLineComment ys@(x:xs) | x == '\n' = ("commentary",[], xs)
                          
 operatorState:: String -> (String, String, String)
 operatorState ys@[]  = ("operator",ys,ys)
-operatorState ys@(x:xs) | isOperator x = ("operator",[x],xs)
+operatorState ys@(x:xs) | isSingleOperator x = let (str,ws,zs) = operatorState xs in (str,x:ws,zs)
                         | otherwise    = ("operator",[],ys)
                         
 
@@ -85,7 +87,12 @@ isDigit        x = elem x "0123456789"
 isWord         x = elem x "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 isLetter       x = elem x "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 isSeparator    x = elem x ".,;{}[]()"
-isOperator     x = elem x "*/+-=&|<>"
+isSingleOperator x = elem x "=><!~?:-&~%^*/+|"
+isOperator     x = elem x ["=",  ">",  "<",  "!",  "~",  "?",  ":",  "->",
+                           "==", ">=", "<=", "!=", "&&", "||", "++", "--",
+                           "+",  "-",  "*",  "/",  "&",  "|",  "^",  "%",  "<<",  ">>",  ">>>",
+                           "+=", "-=", "*=", "/=", "&=", "|=", "^=", "%=", "<<=", ">>=", ">>>="]
+                           
 isReservedWord::String -> Bool
 isReservedWord x = elem x ["abstract","assert","boolean","break","byte","case","catch","char","class","const",
                            "default","do","double","else","enum","extends","final","finally","float",

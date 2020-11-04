@@ -34,7 +34,9 @@ infixr 4 <|>
               , (z, zs) <- q ys ]
 
 (*>) :: Parser s b -> Parser s a -> Parser s a
-(p *> q) s = [ (r2, rss) | (r1,rs) <- p s, (r2,rss) <- q rs ]
+(p *> q) xs = [ (z, zs) 
+              | (y, ys) <- p xs
+              , (z, zs) <- q ys ]
 --infixl 6 <*>
 
 (<$>) :: (a -> b) -> Parser s a -> Parser s b
@@ -44,6 +46,8 @@ infixr 4 <|>
 (f <$ p) xs = [ (f, ys) 
               | (y, ys) <- p xs ]
 
+option :: Parser s a -> a -> Parser s a
+option p d = p <|> succeed d
 
 many :: Parser s a -> Parser s [a]
 many p = list <$> p <*> many p <|> succeed []
