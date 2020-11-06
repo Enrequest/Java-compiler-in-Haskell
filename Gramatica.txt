@@ -1,78 +1,100 @@
 
-G                      -> "class" Identificador "{" Miembros "}"
-Miembros               -> Miembro ";" Miembros
-                        | Epsilon
-Miembro                -> Tipo Identificador 
-                     |Tipo Identificador "(" Parametros ")" Cuerpo
+G                 -> "class" Identificador "{" Miembros "}"
+Miembros          -> Miembro ";" Miembros
+                   | Epsilon
+Miembro           -> Tipo Identificador 
+                   |Tipo Identificador "(" <Parametros>? ")" Cuerpo
 Parametros             -> Parametro
                         | Parametro "," Parametros
-                        | Epsilon
 Parametro              -> Tipo Identificador
 Cuerpo                 -> Bloque | ";"
-Bloque                 -> "{" DeclaracionesBloque "}"|"{" "}"
-DeclaracionesBloque    -> DeclaracionBloque | DeclaracionBloque DeclaracionesBloque
-
-DeclaracionBloque      -> DeclaracionVariableLocal
-                        | Declaracion
-DeclaracionVariableLocal -> VariableLocal ";"
-VariableLocal          -> Tipo DeclaradoresVariables
-DeclaradoresVariables  -> DeclaradorVariable
-                        | DeclaradorVariable ","  DeclaradoresVariables
-DeclaradorVariable     -> Indentificador
-                        | Indentificador "=" InizializadorVariable
-Declaracion            -> DeclaracionExpresion ";"
-DeclaracionExpresion   -> Asignacion
-                        | ExpresionPreincremento
-                        | ExpresionPostincremento
-                        | ExpresionPredecremento
-                        | ExpresionPostdecremento
-                        | InvocacionMetodo
-Asignacion             -> Identificador OperadorAsignacion InizializadorVariable
-OperadorAsignacion     -> "="| "*="|"/="|"%="|"+="|"-="
+Bloque                 -> "{" <DeclaracionBloque>* "}"
+DeclaracionBloque      -> VariableLocal | Asignacion
+VariableLocal          -> Tipo ListaVariablesLocal ";"
+ListaVariablesLocal -> DeclaradorVariable <"," DeclaradorVariable>*
+DeclaradorVariable  -> Identificador <"=" InizializadorVariable>?
+Asignacion     -> Identificador "=" InizializadorVariable ";"
 InizializadorVariable  -> Literal
                         | Identificador
-                        
-Literal                -> IntegerLit
-
-{--
-Asignacion             -> Identificador "=" ExpresionAsignacion 
-
-ExpresionAsignacion    -> ExpresionRelacional
-                        | Asignacion
-                        | Identificador
-ExpresionRelacional    -> ExpresionAditiva 
-                        | ExpresionMultiplicativa
---}
-
-DeclaracionVariableLocal-> Tipo Identificador ";"
- 
+Literal                -> IntegerLiteral 
 Identificador (letra | "_")+
 Tipo              -> "int" | "boolean" | "void"
 
-------------------------------------------------
-
-G                      -> "class" Identificador CuerpoClase 
-CuerpoClase            -> "{" DeclaracionCuerpoClase "}"
-DeclaracionCuerpoClase -> Miembro | DeclaracionCuerpoClase 
-                        |Epsilon
-Miembro                -> Metodo | Campo
-Campo                  -> Tipo Variable ";"
-Variable               -> Identificador
-Metodo                 -> Cabecera Cuerpo
-Cabecera               -> Tipo Indentificador "(" Parametros ")"
-Parametros             -> Parametro | Parametro "," ParametroSig
-                        | Epsilon
-ParametroSig           -> Parametro | Parametros
-Cuerpo                 -> Bloque | ";"
-Bloque                 -> "{" "}"
-Identificador (letra | "_")+ddd
-Tipo "int" | "boolean" | "void"
 
 
---------------------------------------------
-Instrucciones -> Instrucciones Instruccion
-              | Epsilon
-              
-Instruccion   -> Expresion ";"
-Expresion     -> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--DeclaracionesBloque    -> DeclaracionBloque <DeclaracionBloque>*
+--Declaracion = Instruccion
+{-
+DeclaracionBloque      -> DeclaracionVariableLocal
+                        | Declaracion
+Declaracion            -> DeclaracionExpresion ";"
+-}
+
+{-
+DeclaracionVariableLocal -> Tipo ListaVariablesLocal ";"
+ListaVariablesLocal -> DeclaradorVariable <"," DeclaradorVariable>*
+DeclaradorVariable  -> Identificador <"=" InizializadorVariable>?
+
+DeclaracionExpresion   -> Asignacion
+Asignacion             -> Identificador "=" InizializadorVariable
+InizializadorVariable  -> Literal
+                        | Identificador
+Literal                -> IntegerLiteral 
+Identificador (letra | "_")+
+Tipo              -> "int" | "boolean" | "void"
+-}
 

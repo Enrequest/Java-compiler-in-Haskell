@@ -19,33 +19,33 @@ pCuerpoClase = CuerpoClase <$ pSeparador "{" <*> pMiembros <* pSeparador "}"
 pMiembros =   MCons <$> pMiembro <*> pMiembros
           <|> succeed MNil
 
-pMiembro = Atributo <$> pTipo <*> pIdentificador <* pSeparador ";" <|> Metodo <$> pTipo <*> pIdentificador <* pSeparador "(" <*> pParametros <* pSeparador ")" <*> pCuerpoMetodo
+pMiembro = Atributo <$> pTipo <*> pIdentificador <* pSeparador ";" <|> Metodo <$> pTipo <*> pIdentificador <* pSeparador "(" <*> (option pParametros PNil) <* pSeparador ")" <*> pCuerpoMetodo
 
-pParametros = ParametroFinal <$> pParametro <|> Parametros <$> pParametro <* pSeparador "," <*> pParametros <|> succeed PNil
+{-
+pParametros = ParametroFinal <$> pParametro <|> Parametros <$> pParametro <* pSeparador "," <*> pParametros
+-}
+
+pParametros = Parametros <$> pParametro <*> succeed PNil <|> Parametros <$> pParametro <* pSeparador "," <*> pParametros
 
 pParametro = Parametro <$> pTipo <*> pIdentificador
 
 pCuerpoMetodo = Cuerpo <$> pBloque <|> CuerpoNil <$ pSeparador ";"
 
-pBloque = Bloque <$ pSeparador "{" <*> pDeclaracionesBloque <* pSeparador "}" <|> BloqueNil <$ pSeparador "{" <* pSeparador "}" 
+{-
+pBloque = pSeparador "{" *> option (Bloque <$> pDeclaracionesBloque) BloqueNil <* pSeparador "}" 
+-}
 
-pDeclaracionesBloque = DeclaracionFinal<$>pDeclaracionBloque <|>  Declaraciones <$> pDeclaracionBloque <*> pDeclaracionesBloque
- 
-pDeclaracionBloque = DeclaracionBloqueVariable<$> pDeclaracionVariable <|> DeclaracionBloque <$> pDeclaracion
+pBloque = pSeparador "{" *> Bloque <$> many (pDeclaracionBloque) <* pSeparador "}"
 
-pDeclaracionVariable = DeclaracionVariable <$> pVariableLocal <* pSeparador ";"
+pDeclaracionBloque = DeclaracionVariableLocal <$> pVariableLocal <|> DeclaracionAsignacion <$> pAsignacion
 
-pVariableLocal = VariableLocal <$> pTipo <*> pDeclaradoresVariables
+pVariableLocal = VariableLocal <$> pTipo <*> pListaVariablesLocal <* pSeparador ";"
 
-pDeclaradoresVariables = VariableFinal <$> pDeclaradorVariable <|> Variables <$> pDeclaradorVariable <* pSeparador "," <*> pDeclaradoresVariables
+pListaVariablesLocal = ListaVariablesLocal <$> pDeclaradorVariable <*> many ( pSeparador "," *> pDeclaradorVariable)
 
-pDeclaradorVariable = NoInizializada <$> pIdentificador <|> Inizializada <$> pIdentificador <* pOperador "=" <*> pInizializadorVariable
+pDeclaradorVariable = DeclaradorVariable <$> pIdentificador <*> option (pOperador "=" *> pInizializadorVariable) NoInizializado
 
-pDeclaracion = Declaracion <$> pDeclaracionExpresion <* pSeparador ";"
-
-pDeclaracionExpresion = DeclaracionExpresion <$> pAsignacion
-
-pAsignacion = Asignacion <$> pIdentificador <* pOperador "=" <*> pInizializadorVariable
+pAsignacion = Asignacion <$> pIdentificador <* pOperador "=" <*> pInizializadorVariable <* pSeparador ";"
 
 pInizializadorVariable = InizializadorLiteral <$> pLiteral <|> InizializadorIdentificador <$> pIdentificador
 
@@ -71,8 +71,7 @@ data Miembro = Atributo Tipo String
              | Metodo Tipo String Parametros CuerpoMetodo
              deriving Show
 
-data Parametros = ParametroFinal Parametro
-                | Parametros Parametro Parametros
+data Parametros = Parametros Parametro Parametros
                 | PNil
                 deriving Show
 
@@ -82,46 +81,29 @@ data Parametro = Parametro Tipo String
 data CuerpoMetodo = Cuerpo Bloque | CuerpoNil
                   deriving Show
 
-data Bloque = Bloque DeclaracionesBloque
-              | BloqueNil
-            deriving Show
-            
-data DeclaracionesBloque = 
-                     DeclaracionFinal DeclaracionBloque
-                   | Declaraciones DeclaracionBloque DeclaracionesBloque
-                   | DNil
+data Bloque = Bloque [DeclaracionBloque]
+             deriving Show
+             
+data DeclaracionBloque = DeclaracionVariableLocal VariableLocal
+                       | DeclaracionAsignacion Asignacion
+                     deriving Show
+                     
+data VariableLocal = VariableLocal Tipo ListaVariablesLocal 
                    deriving Show
+                  
+data ListaVariablesLocal = 
+    ListaVariablesLocal DeclaradorVariable [DeclaradorVariable]
+    deriving Show
 
-data DeclaracionBloque = 
-                DeclaracionBloqueVariable DeclaracionVariableLocal
-              | DeclaracionBloque Declaracion
-                  deriving Show
-                                      
-data DeclaracionVariableLocal = DeclaracionVariable VariableLocal
-                         deriving Show
+data DeclaradorVariable = DeclaradorVariable String InizializadorVariable
+                        deriving Show
 
-data VariableLocal = VariableLocal Tipo DeclaradoresVariables
-                   deriving Show
-                   
-data DeclaradoresVariables = VariableFinal DeclaradorVariable
-                           | Variables DeclaradorVariable DeclaradoresVariables
-                           deriving Show
-                          
-data DeclaradorVariable = NoInizializada String
-                  | Inizializada String InizializadorVariable
-                        deriving Show         
-                                     
-data Declaracion = Declaracion DeclaracionExpresion
-                 deriving Show
-                
-data DeclaracionExpresion = DeclaracionExpresion Asignacion
-                      deriving Show
-                
 data Asignacion = Asignacion String InizializadorVariable
                  deriving Show
-                 
+
 data InizializadorVariable = InizializadorLiteral Literal
-          |InizializadorIdentificador String             
+          | InizializadorIdentificador String
+          | NoInizializado             
                   deriving Show
 
 data Literal = LiteralEntero Int
@@ -147,4 +129,54 @@ pOperador s = symbol (Operator s)
 pTipo :: Parser Symbol Tipo
 pTipo =   TEntero   <$ pPalabraReservada "int"
       <|> TBooleano <$ pPalabraReservada "boolean" <|> TVoid <$ pPalabraReservada "void"
+      
+
+
+
+
+
+
+{-
+pDeclaracionesBloque = DeclaracionesBloque <$> pDeclaracionBloque <*> many pDeclaracionBloque
+
+pDeclaracionBloque = DeclaracionBloqueVariable<$> pDeclaracionVariable <|> DeclaracionBloque <$> pDeclaracion
+
+pDeclaracionVariable = DeclaracionVariable <$> pTipo <*> pListaVariablesLocal <* pSeparador ";"
+
+pDeclaracion = Declaracion <$> pDeclaracionExpresion <* pSeparador ";"
+
+pDeclaracionExpresion = DeclaracionExpresion <$> pAsignacion
+-}
+       
+{-
+data Bloque = Bloque DeclaracionesBloque
+              | BloqueNil
+            deriving Show
+                        
+data DeclaracionesBloque = DeclaracionesBloque DeclaracionBloque [DeclaracionBloque]
+                 deriving Show
+                  
+data DeclaracionBloque = 
+                DeclaracionBloqueVariable DeclaracionVariableLocal
+              | DeclaracionBloque Declaracion
+              | FinDeclaracion
+                  deriving Show
+                                      
+data DeclaracionVariableLocal = 
+               DeclaracionVariable Tipo ListaVariablesLocal
+                         deriving Show
+
+data ListaVariablesLocal = 
+    ListaVariablesLocal DeclaradorVariable [DeclaradorVariable]
+    deriving Show
+    
+data DeclaradorVariable = DeclaradorVariable String InizializadorVariable
+                        deriving Show
+                                                             
+data Declaracion = Declaracion DeclaracionExpresion
+                 deriving Show
+                 
+data DeclaracionExpresion = DeclaracionExpresion Asignacion
+                      deriving Show
+-}      
 
