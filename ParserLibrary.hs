@@ -57,26 +57,3 @@ many1 p = list <$> p <*> many p
 
 list x xs = x:xs
 
-{-
-
-class A {
-   int a;
-   boolean a;
-   int b;
-   int m1();
-   boolean m2(int a);
-   void m3(int a, boolean b, int c);
-}
-
-G -> "class" Identificador "{" Miembros "}"
-Miembros -> Miembro ";" Miembros | Epsilon
-Miembro  -> Tipo Identificador Argumento
-Identificador -> (letra | "_")+
-Tipo     "int" | "boolean" | "void"
-Argumento -> Epsilon
-Argumento -> "(" Parametros ");"
-Parametros -> Parametro | Parametro "," Parametros | Epsilon
-Parametro -> Tipo Identificador
-
--}
-

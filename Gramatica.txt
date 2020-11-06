@@ -8,14 +8,86 @@ Parametros             -> Parametro
                         | Parametro "," Parametros
 Parametro              -> Tipo Identificador
 Cuerpo                 -> Bloque | ";"
-Bloque                 -> "{" <DeclaracionesBloque>? "}"
-DeclaracionesBloque    -> DeclaracionBloque <DeclaracionBloque>*
+Bloque                 -> "{" <DeclaracionBloque>* "}"
+DeclaracionBloque      -> VariableLocal | Asignacion
+VariableLocal          -> Tipo ListaVariablesLocal ";"
+ListaVariablesLocal -> DeclaradorVariable <"," DeclaradorVariable>*
+DeclaradorVariable  -> Identificador <"=" InizializadorVariable>?
+Asignacion     -> Identificador "=" InizializadorVariable ";"
+InizializadorVariable  -> Literal
+                        | Identificador
+Literal                -> IntegerLiteral 
+Identificador (letra | "_")+
+Tipo              -> "int" | "boolean" | "void"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--DeclaracionesBloque    -> DeclaracionBloque <DeclaracionBloque>*
+--Declaracion = Instruccion
+{-
 DeclaracionBloque      -> DeclaracionVariableLocal
                         | Declaracion
+Declaracion            -> DeclaracionExpresion ";"
+-}
+
+{-
 DeclaracionVariableLocal -> Tipo ListaVariablesLocal ";"
 ListaVariablesLocal -> DeclaradorVariable <"," DeclaradorVariable>*
 DeclaradorVariable  -> Identificador <"=" InizializadorVariable>?
-Declaracion            -> DeclaracionExpresion ";"
 
 DeclaracionExpresion   -> Asignacion
 Asignacion             -> Identificador "=" InizializadorVariable
@@ -24,4 +96,5 @@ InizializadorVariable  -> Literal
 Literal                -> IntegerLiteral 
 Identificador (letra | "_")+
 Tipo              -> "int" | "boolean" | "void"
+-}
 
