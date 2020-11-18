@@ -9,92 +9,65 @@ Parametros             -> Parametro
 Parametro              -> Tipo Identificador
 Cuerpo                 -> Bloque | ";"
 Bloque                 -> "{" <DeclaracionBloque>* "}"
-DeclaracionBloque      -> VariableLocal | Asignacion
-VariableLocal          -> Tipo ListaVariablesLocal ";"
-ListaVariablesLocal -> DeclaradorVariable <"," DeclaradorVariable>*
-DeclaradorVariable  -> Identificador <"=" InizializadorVariable>?
-Asignacion     -> Identificador "=" InizializadorVariable ";"
-InizializadorVariable  -> Literal
-                        | Identificador
-Literal                -> IntegerLiteral 
-Identificador (letra | "_")+
-Tipo              -> "int" | "boolean" | "void"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
---DeclaracionesBloque    -> DeclaracionBloque <DeclaracionBloque>*
---Declaracion = Instruccion
+DeclararacionBloque    -> Asignacion
 {-
-DeclaracionBloque      -> DeclaracionVariableLocal
-                        | Declaracion
-Declaracion            -> DeclaracionExpresion ";"
+Asignacion     -> Identificador "=" Expresion ";"
 -}
 
-{-
-DeclaracionVariableLocal -> Tipo ListaVariablesLocal ";"
-ListaVariablesLocal -> DeclaradorVariable <"," DeclaradorVariable>*
-DeclaradorVariable  -> Identificador <"=" InizializadorVariable>?
+Asignacion     -> Identificador "=" ExpresionCondicional ";"
 
-DeclaracionExpresion   -> Asignacion
-Asignacion             -> Identificador "=" InizializadorVariable
-InizializadorVariable  -> Literal
-                        | Identificador
-Literal                -> IntegerLiteral 
+ExpresionCondicional->ExpresionRelacional "||" ExpresionCondicional
+                    | ExpresionRelacional "&&" ExpresionCondicional
+                    | ExpresionRelacional                                
+{-                
+ExpresionIgualdad -> ExpresionRelacional "==" ExpresionIgualdad
+                   | ExpresionRelacional "!=" ExpresionIgualdad
+                   | ExpresionRelacional
+-}
+                   
+ExpresionRelacional -> Expresion "==" ExpresionRelacional
+                     | Expresion "!=" ExpresionRelacional
+                     | Expresion "<" ExpresionRelacional
+                     | Expresion ">" ExpresionRelacional
+                     | Expresion "<=" ExpresionRelacional
+                     | Expresion ">=" ExpresionRelacional
+                     | Expresion
+
+Expresion      -> Termino "+" ExpresionCondicional
+                | Termino "-" ExpresionCondicional
+                | Termino
+                                 
+Termino        -> Factor "*" Termino
+                | Factor
+Factor         -> Literal
+                | Funcion
+                | Itentificador
+                | "(" ExpresionCondicional ")"
+
+{-
+Expresion      -> Termino "+" Expresion
+                | Termino "-" Expresion
+                | Termino
+                                 
+Termino        -> Factor "*" Termino
+                | Factor
+Factor         -> Literal
+                | Funcion
+                | Itentificador
+                | "(" Expresion ")"
+-}
+                
+Funcion        -> Identificador "(" <Argumentos>? ")"
+Argumentos     -> Expresion <"," Expresion>*
+Literal        -> IntegerLiteral
+                | BooleanLiteral 
 Identificador (letra | "_")+
 Tipo              -> "int" | "boolean" | "void"
+
+
+
+{-
+InizializadorVariable  -> Literal
+                        | Identificador
 -}
 
