@@ -22,4 +22,5 @@ main = do programa <- readFile "Ejemplo1.java"
           putStrLn(show (trozar programa))
 -}
 
+
                  

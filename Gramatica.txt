@@ -4,26 +4,36 @@ Miembros          -> Miembro ";" Miembros
                    | Epsilon
 Miembro           -> Tipo Identificador 
                    |Tipo Identificador "(" <Parametros>? ")" Cuerpo
-Parametros             -> Parametro
-                        | Parametro "," Parametros
+Parametros        -> Parametro <"," Parametro>* 
 Parametro              -> Tipo Identificador
-Cuerpo                 -> Bloque | ";"
+--Cuerpo                 -> Bloque | ";"
+Cuerpo                 -> Bloque
 Bloque                 -> "{" <DeclaracionBloque>* "}"
-DeclararacionBloque    -> Asignacion
+
 {-
-Asignacion     -> Identificador "=" Expresion ";"
--}
+DeclaracionBloque    -> Asignacion
+                        | Condicional
+                        | While
+                        
+Condicional -> "if" "(" ExpresionCondicional ")" "{" <DeclaracionBloque>* "}" <"else" "{" <DeclaracionBloque>* "}">?
 
+While -> "while" "(" ExpresionCondicional ")" "{" <DeclaracionBloque>* "}"
+   
 Asignacion     -> Identificador "=" ExpresionCondicional ";"
+-}                         
 
+DeclaracionBloque -> Identificador "=" ExpresionCondicional ";"
+                  | "if" "(" ExpresionCondicional ")" Bloque 
+                  | "if" "(" ExpresionCondicional ")" Bloque "else" CuerpoElse 
+                  | "while" "(" ExpresionCondicional ")" Bloque
+                  | "return" <ExpresionCondicional>? ";"
+                  | "return" Expresion ";"
+CuerpoElse -> Bloque
+            | "if" "(" ExpresionCondicional ")" Bloque
+            
 ExpresionCondicional->ExpresionRelacional "||" ExpresionCondicional
-                    | ExpresionRelacional "&&" ExpresionCondicional
-                    | ExpresionRelacional                                
-{-                
-ExpresionIgualdad -> ExpresionRelacional "==" ExpresionIgualdad
-                   | ExpresionRelacional "!=" ExpresionIgualdad
-                   | ExpresionRelacional
--}
+              | ExpresionRelacional "&&" ExpresionCondicional
+              | ExpresionRelacional                                
                    
 ExpresionRelacional -> Expresion "==" ExpresionRelacional
                      | Expresion "!=" ExpresionRelacional
@@ -38,36 +48,19 @@ Expresion      -> Termino "+" ExpresionCondicional
                 | Termino
                                  
 Termino        -> Factor "*" Termino
+                | Factor "/" Termino
                 | Factor
 Factor         -> Literal
                 | Funcion
                 | Itentificador
                 | "(" ExpresionCondicional ")"
-
-{-
-Expresion      -> Termino "+" Expresion
-                | Termino "-" Expresion
-                | Termino
-                                 
-Termino        -> Factor "*" Termino
-                | Factor
-Factor         -> Literal
-                | Funcion
-                | Itentificador
-                | "(" Expresion ")"
--}
                 
 Funcion        -> Identificador "(" <Argumentos>? ")"
 Argumentos     -> Expresion <"," Expresion>*
 Literal        -> IntegerLiteral
                 | BooleanLiteral 
 Identificador (letra | "_")+
-Tipo              -> "int" | "boolean" | "void"
+Tipo           -> "int" | "boolean" | "void"
 
 
-
-{-
-InizializadorVariable  -> Literal
-                        | Identificador
--}
 

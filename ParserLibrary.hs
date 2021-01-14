@@ -57,3 +57,15 @@ many1 p = list <$> p <*> many p
 
 list x xs = x:xs
 
+listOf :: Parser s a -> Parser s b -> Parser s [a]
+listOf p s = list <$> p <*> many ((\x y -> y) <$> s <*> p)
+
+chainr :: Parser s a -> Parser s (a->a->a) -> Parser s a
+chainr pe po = h <$> many (j <$> pe <*> po) <*> pe
+   where j x op = (x `op`)
+         h fs x = foldr ($) x fs
+         
+
+
+
+
