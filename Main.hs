@@ -2,8 +2,8 @@ module Main where
 
 import MyScanner
 import Parser
-import Contexto
 
+import Contexto
 
 main = do programa <- readFile "Ejemplo.java"
           let simbolos = trozar programa

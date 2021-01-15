@@ -131,7 +131,6 @@ pSuma = (\_ -> (+)) <$> pOperador "+"
 
 pMult = (\_ -> (*)) <$> pOperador "*"
 
-
 pBoolean = (\(BooleanLiteral b) -> (if b == "true" then True else False)) <$> symbol (BooleanLiteral "")
 
 pPalabraReservada :: String -> Parser Symbol Symbol
@@ -150,4 +149,3 @@ pTipo =   sem_Tipo_TEntero   <$ pPalabraReservada "int"
     <|> sem_Tipo_TVoid <$ pPalabraReservada "void"
       
 ---Funciones semanticas
-
