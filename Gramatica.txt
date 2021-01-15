@@ -1,0 +1,54 @@
+
+G                 -> "class" Identificador "{" Miembros "}"
+Miembros          -> Miembro ";" Miembros
+                   | Epsilon
+Miembro           -> Tipo Identificador 
+                   |Tipo Identificador "(" <Parametros>? ")" Cuerpo
+Parametros             -> Parametro
+                        | Parametro "," Parametros
+Parametro              -> Tipo Identificador
+Cuerpo                 -> Bloque | ";"
+Bloque                 -> "{" <DeclaracionBloque>* "}"
+DeclararacionBloque    -> Asignacion
+
+{-
+DeclaracionBloque      -> VariableLocal | Asignacion
+VariableLocal          -> Tipo ListaVariablesLocal ";"
+-}
+{-
+ListaVariablesLocal -> DeclaradorVariable <"," DeclaradorVariable>*
+DeclaradorVariable  -> Identificador <"=" InizializadorVariable>?
+-}
+
+InizializadorVariable  -> Literal
+                        | Identificador
+
+Asignacion     -> Identificador "=" Expresion ";"
+
+Expresion      -> Termino + Expresion
+                | Termino - Expresion
+                | Termino
+                
+Termino        -> Factor * Termino
+                | Factor
+                
+Factor         -> Funcion
+                | Literal
+                | Identificador
+                | "(" Expresion ")"
+                
+Funcion        -> Identificador "(" <Argumentos>? ")"
+
+Argumentos     -> Argumento
+                | Argumento "," Argumentos
+
+{-
+Expresion      -> Expresion "+" Expresion 
+                | Expresion "*" Expresion
+                | Literal
+-}                                        
+Literal         -> IntegerLiteral
+                 | BooleanLiteral 
+Identificador (letra | "_")+
+Tipo              -> "int" | "boolean" | "void"
+
