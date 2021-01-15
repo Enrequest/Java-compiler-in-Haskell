@@ -1,0 +1,48 @@
+attr Miembro Miembros
+   syn atributosDefinidos::{[String]}
+
+sem Miembro
+  | Atributo lhs.atributosDefinidos = [@id]
+  | Metodo   lhs.atributosDefinidos = []
+
+sem Miembros
+  | MCons    lhs.atributosDefinidos = @miembro.atributosDefinidos ++
+                                      @miembros.atributosDefinidos
+  | MNil     lhs.atributosDefinidos = []
+  
+-----------------------------------------------
+attr Miembros Miembro Bs DeclaracionBloque Expresion Es
+  inh definidosH::{[String]}
+
+sem CuerpoClase
+  | CuerpoClase miembros.definidosH = @miembros.atributosDefinidos
+  
+sem Miembros
+  | MCons miembro.definidosH = @lhs.definidosH
+          miembros.definidosH = @lhs.definidosH
+
+sem Miembro
+  | Metodo bs.definidosH = @lhs.definidosH
+
+sem Bs
+  | Cons hd.definidosH = @lhs.definidosH
+         tl.definidosH = @lhs.definidosH
+
+sem DeclaracionBloque
+  | Asignacion expr.definidosH = @lhs.definidosH
+
+sem Expresion
+  | Operacion izq.definidosH   = @lhs.definidosH
+              der.definidosH   = @lhs.definidosH
+  | Fun   parametro.definidosH = @lhs.definidosH
+  
+sem Es
+  | Cons hd.definidosH = @lhs.definidosH
+         tl.definidosH = @lhs.definidosH
+-----------------------------------------------
+{
+variableDeclarada:: String -> [String] -> String
+variableDeclarada v declaradas
+                | elem v declaradas = ""
+                | otherwise = " <- \"Simbolo no encontrado\""
+}

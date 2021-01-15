@@ -1,0 +1,5 @@
+include "GramaticaLC.ag"
+include "Mostrar.ag"
+include "TipoExpresiones"
+include "Declarados.ag"
+include "TiposAtributos.ag"

@@ -1,0 +1,97 @@
+attr Tipo
+  syn tipoAtributoDeclarado::{Tipo}
+  
+sem Tipo
+  | TEntero lhs.tipoAtributoDeclarado = Entero
+  | TBooleano lhs.tipoAtributoDeclarado = Booleano
+  | TVoid   lhs.tipoAtributoDeclarado = Entero
+------------------------------------------------
+attr Miembro Miembros
+  syn atributosTipos::{[(String, Tipo)]}
+  
+sem Miembro
+  | Atributo lhs.atributosTipos = [(@id, @tipo.tipoAtributoDeclarado)]
+  | Metodo   lhs.atributosTipos = []
+  
+sem Miembros
+  | MCons lhs.atributosTipos = @miembro.atributosTipos ++ @miembros.atributosTipos
+  | MNil  lhs.atributosTipos = []
+-----------------------------------------------
+
+attr Miembros Miembro Bs DeclaracionBloque Expresion Es
+  inh atributosTiposDeclarados::{[(String, Tipo)]}
+
+sem CuerpoClase
+  | CuerpoClase miembros.atributosTiposDeclarados = @miembros.atributosTipos
+  
+sem Miembros
+  | MCons miembro.atributosTiposDeclarados = @lhs.atributosTiposDeclarados
+          miembros.atributosTiposDeclarados = @lhs.atributosTiposDeclarados
+
+sem Miembro
+  | Metodo bs.atributosTiposDeclarados = @lhs.atributosTiposDeclarados
+
+sem Bs
+  | Cons hd.atributosTiposDeclarados = @lhs.atributosTiposDeclarados
+         tl.atributosTiposDeclarados = @lhs.atributosTiposDeclarados
+
+sem DeclaracionBloque
+  | Asignacion expr.atributosTiposDeclarados = @lhs.atributosTiposDeclarados
+
+sem Expresion
+  | Operacion izq.atributosTiposDeclarados = @lhs.atributosTiposDeclarados
+              der.atributosTiposDeclarados = @lhs.atributosTiposDeclarados
+  | Fun parametro.atributosTiposDeclarados = @lhs.atributosTiposDeclarados
+  
+sem Es
+  | Cons hd.atributosTiposDeclarados = @lhs.atributosTiposDeclarados
+         tl.atributosTiposDeclarados = @lhs.atributosTiposDeclarados
+         
+
+
+------------------------------------------------
+--                FUNCIONES                   --
+------------------------------------------------
+attr Miembro Miembros
+   syn funcionesTipos::{[(String, Tipo)]}
+   
+sem Miembro
+  | Atributo lhs.funcionesTipos = []
+  | Metodo   lhs.funcionesTipos = [(@id, @tipo.tipoAtributoDeclarado)]
+  
+sem Miembros
+  | MCons lhs.funcionesTipos = @miembro.funcionesTipos ++ @miembros.funcionesTipos
+  | MNil  lhs.funcionesTipos = []
+---------------------------------------------------------------------------------
+
+attr Miembros Miembro Bs DeclaracionBloque Expresion Es
+   inh funcionesTiposDeclaradas::{[(String, Tipo)]}
+
+sem CuerpoClase
+  | CuerpoClase miembros.funcionesTiposDeclaradas = @miembros.funcionesTipos
+  
+sem Miembros
+  | MCons miembro.funcionesTiposDeclaradas  = @lhs.funcionesTiposDeclaradas
+          miembros.funcionesTiposDeclaradas = @lhs.funcionesTiposDeclaradas
+
+sem Miembro
+  | Metodo bs.funcionesTiposDeclaradas = @lhs.funcionesTiposDeclaradas
+
+sem Bs
+  | Cons hd.funcionesTiposDeclaradas = @lhs.funcionesTiposDeclaradas
+         tl.funcionesTiposDeclaradas = @lhs.funcionesTiposDeclaradas
+
+sem DeclaracionBloque
+  | Asignacion expr.funcionesTiposDeclaradas = @lhs.funcionesTiposDeclaradas
+
+sem Expresion
+  | Operacion izq.funcionesTiposDeclaradas = @lhs.funcionesTiposDeclaradas
+              der.funcionesTiposDeclaradas = @lhs.funcionesTiposDeclaradas
+  | Fun parametro.funcionesTiposDeclaradas = @lhs.funcionesTiposDeclaradas
+  
+sem Es
+  | Cons hd.funcionesTiposDeclaradas = @lhs.funcionesTiposDeclaradas
+         tl.funcionesTiposDeclaradas = @lhs.funcionesTiposDeclaradas
+
+
+

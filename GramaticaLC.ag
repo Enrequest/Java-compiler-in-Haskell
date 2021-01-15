@@ -1,0 +1,67 @@
+data Raiz
+   | Raiz clase::Class
+   
+data Class
+   | Class id::String cuerpo::CuerpoClase
+
+data CuerpoClase
+   | CuerpoClase miembros::Miembros
+   
+data Miembros
+   | MCons miembro::Miembro miembros::Miembros
+   | MNil
+
+data Miembro
+   | Atributo tipo::Tipo id::String
+   | Metodo tipo::Tipo id::String ps::Ps bs::Bs
+
+type Ps = [Parametro]
+type Bs = [DeclaracionBloque]
+
+data Parametro
+   | Parametro tipo::Tipo id::String
+   
+data DeclaracionBloque
+   | Asignacion id::String expr::Expresion
+
+data Expresion
+   | Operacion op::Operador izq::Expresion der::Expresion
+   | Con literal::Literal
+   | Var id::String
+   | Fun id::String parametro::Es
+
+data Operador
+   | Sum 
+   | Res 
+   | Mul 
+   | Mod
+   | Div 
+   | O  
+   | Y   
+   | Igl
+   | Dif 
+   | Men 
+   | May 
+   | MenIgl 
+   | MayIgl   
+   
+type Es = [Expresion]
+
+data Literal
+   | LiteralEntero int::Int
+   | LiteralBooleano bool::Bool
+   
+data Tipo
+   | TEntero
+   | TBooleano
+   | TVoid
+      
+deriving Class CuerpoClase
+         Miembros Miembro
+         Parametro DeclaracionBloque
+         Expresion Literal
+         Tipo Expresion Operador : Show
+
+         
+         
+               

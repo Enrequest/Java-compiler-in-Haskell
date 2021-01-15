@@ -1,0 +1,120 @@
+
+--atributo para rearmar el programa
+
+attr Class CuerpoClase
+     Miembros Miembro
+     Parametro DeclaracionBloque
+     Expresion Literal
+     Tipo Expresion Operador
+     Ps Bs Raiz
+  syn programa::{String}
+
+sem Expresion
+  | Operacion lhs.programa = 
+                  @izq.programa ++ @op.programa ++ 
+                       compatibilidadOperador @esCompatible ++ @der.programa
+  | Con       lhs.programa = @literal.programa
+  | Fun       lhs.programa = @id ++ "(" ++ ")"
+  | Var       lhs.programa = @id ++ @declarada ++ compatibilidadOperando @esCompatible
+              loc.declarada = variableDeclarada @id @lhs.definidosH
+    
+sem Literal
+  | LiteralEntero   lhs.programa = show @int ++ compatibilidadOperando @esCompatible
+  | LiteralBooleano lhs.programa = show @bool ++ compatibilidadOperando @esCompatible
+
+sem Operador
+  | Sum    lhs.programa = " + "
+  | Res    lhs.programa = " - "
+  | Mul    lhs.programa = " * "
+  | Mod    lhs.programa = " % "
+  | Div    lhs.programa = " / "
+  | O      lhs.programa = " || "
+  | Y      lhs.programa = " && "
+  | Igl    lhs.programa = " == "
+  | Dif    lhs.programa = " != "
+  | Men    lhs.programa = " < "
+  | May    lhs.programa = " > "
+  | MenIgl lhs.programa = " <= "
+  | MayIgl lhs.programa = " >= "    
+
+sem Raiz
+  | Raiz lhs.programa = @clase.programa
+  
+sem Class
+  | Class lhs.programa = "class " ++ @id ++ 
+                          " {\n " ++ @cuerpo.programa ++ spaces @lhs.indentacion ++ "}"
+
+sem CuerpoClase
+  | CuerpoClase lhs.programa = @miembros.programa
+  
+sem Miembros
+  | MCons lhs.programa = @miembro.programa ++ "\n" ++ @miembros.programa
+  | MNil  lhs.programa = ""
+  
+sem Miembro
+  | Atributo lhs.programa = spaces @lhs.indentacion ++ @tipo.programa ++ " " ++ @id ++ ";"
+  | Metodo lhs.programa = spaces @lhs.indentacion ++ @tipo.programa ++ " " ++ @id ++
+                             "(" ++ @ps.programa ++ ")" ++ 
+                               " {\n" ++ @bs.programa ++ spaces @lhs.indentacion ++ "}"
+                             
+sem Ps
+  | Cons lhs.programa = @hd.programa ++ "," ++ @tl.programa 
+  | Nil  lhs.programa = ""
+
+sem Bs
+  | Cons lhs.programa = @hd.programa ++ ";\n" ++ @tl.programa
+  | Nil  lhs.programa = ""
+  
+{
+spaces s = take s (repeat ' ')
+}
+
+sem Parametro
+  | Parametro lhs.programa = ""
+
+sem DeclaracionBloque
+  | Asignacion lhs.programa = spaces @lhs.indentacion ++ @id ++ (variableDeclarada @id @lhs.definidosH) ++ " = " ++ @expr.programa
+  
+sem Tipo
+  | TEntero   lhs.programa = "int"
+  | TBooleano lhs.programa = "boolean"
+  | TVoid     lhs.programa = "void"
+  
+---------------------------------------------------------------
+
+attr Class CuerpoClase Miembros Miembro DeclaracionBloque Bs
+  inh indentacion::{Int} 
+
+sem Raiz
+  | Raiz clase.indentacion = 0
+  
+sem Class
+  | Class cuerpo.indentacion = @lhs.indentacion
+  
+sem CuerpoClase
+  | CuerpoClase miembros.indentacion = @lhs.indentacion + 4
+
+sem Miembros
+  | MCons miembro.indentacion = @lhs.indentacion
+          miembros.indentacion = @lhs.indentacion
+        
+sem Miembro
+  | Metodo bs.indentacion = @lhs.indentacion + 4
+  
+sem Bs
+  | Cons hd.indentacion = @lhs.indentacion
+         tl.indentacion = @lhs.indentacion
+
+
+
+
+
+
+
+
+
+
+
+
+
+

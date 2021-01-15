@@ -1,0 +1,147 @@
+attr Operador
+   syn operador::{String}
+   
+sem Operador
+  | Sum    lhs.operador = "Sum"
+  | Res    lhs.operador = "Res"
+  | Mul    lhs.operador = "Mul"
+  | Mod    lhs.operador = "Mod"
+  | Div    lhs.operador = "Div"
+  | O      lhs.operador = "O"
+  | Y      lhs.operador = "Y"
+  | Igl    lhs.operador = "Igl"
+  | Dif    lhs.operador = "Dif"
+  | Men    lhs.operador = "Men"
+  | May    lhs.operador = "May" 
+  | MenIgl lhs.operador = "MenIgl"
+  | MayIgl lhs.operador = "MayIgl" 
+------------------------------------
+------------------------------------
+
+attr Expresion Literal Operador
+   syn tipoPadreS::{Tipo}
+
+sem Literal
+  | LiteralEntero   lhs.tipoPadreS = Entero
+  | LiteralBooleano lhs.tipoPadreS = Booleano
+
+sem Expresion
+  | Operacion lhs.tipoPadreS = @op.tipoPadreS             
+  | Con       lhs.tipoPadreS = @literal.tipoPadreS 
+  | Var       lhs.tipoPadreS = tipoAtributoDeclarado @id @lhs.atributosTiposDeclarados
+  | Fun       lhs.tipoPadreS = tipoFuncionDeclarada @id @lhs.funcionesTiposDeclaradas
+
+sem Operador
+   | Sum    lhs.tipoPadreS = Entero 
+   | Res    lhs.tipoPadreS = Entero
+   | Mul    lhs.tipoPadreS = Entero
+   | Mod    lhs.tipoPadreS = Entero
+   | Div    lhs.tipoPadreS = Entero
+   | O      lhs.tipoPadreS = Booleano
+   | Y      lhs.tipoPadreS = Booleano
+   | Igl    lhs.tipoPadreS = Booleano
+   | Dif    lhs.tipoPadreS = Booleano
+   | Men    lhs.tipoPadreS = Booleano
+   | May    lhs.tipoPadreS = Booleano
+   | MenIgl lhs.tipoPadreS = Booleano
+   | MayIgl lhs.tipoPadreS = Booleano 
+-----------------------------------------------
+attr Expresion Literal Es
+   inh tipoPadreH::{Tipo}
+
+sem DeclaracionBloque
+  | Asignacion expr.tipoPadreH = @expr.tipoPadreS
+
+sem Expresion
+  | Operacion izq.tipoPadreH       = esOperacionBool @op.operador @lhs.tipoPadreH Entero
+              der.tipoPadreH       = esOperacionBool @op.operador @lhs.tipoPadreH Entero
+  | Con       literal.tipoPadreH   = @lhs.tipoPadreH
+  | Fun       parametro.tipoPadreH = @lhs.tipoPadreH
+
+{
+esOperacionBool "May" h s = s
+esOperacionBool "Men" h s = s
+esOperacionBool "Igl" h s = s
+esOperacionBool "Dif" h s = s
+esOperacionBool "MenIgl" h s = s
+esOperacionBool "MayIgl" h s = s
+esOperacionBool  _    h s = h
+}
+
+sem Es
+  | Cons hd.tipoPadreH = @lhs.tipoPadreH
+         tl.tipoPadreH = @lhs.tipoPadreH
+-------------------------------------------------          
+attr Expresion Literal
+   syn hayCompatibilidad::{Compatibilidad}
+
+sem Expresion
+  | Operacion  lhs.hayCompatibilidad = expresionCompatible @izq.hayCompatibilidad
+                                                      @der.hayCompatibilidad
+                                                       @esCompatible
+               loc.esCompatible = esTipoCompatible @lhs.tipoPadreH @op.tipoPadreS
+  | Con        lhs.hayCompatibilidad = @literal.hayCompatibilidad
+  | Var        lhs.hayCompatibilidad = @esCompatible
+               loc.esCompatible = esTipoCompatible @lhs.tipoPadreH (tipoAtributoDeclarado @id @lhs.atributosTiposDeclarados)
+  | Fun        lhs.hayCompatibilidad = @esCompatible
+               loc.esCompatible = esTipoCompatible @lhs.tipoPadreH (tipoFuncionDeclarada @id @lhs.funcionesTiposDeclaradas)  
+
+sem Literal
+  | LiteralEntero   lhs.hayCompatibilidad = @esCompatible
+                    loc.esCompatible = esTipoCompatible @lhs.tipoPadreH Entero
+  | LiteralBooleano lhs.hayCompatibilidad = @esCompatible
+                    loc.esCompatible = esTipoCompatible @lhs.tipoPadreH Booleano
+-----------------------------------------------------------------------------------                    
+{
+data Tipo = Entero | Booleano
+           deriving (Eq, Show)
+
+data Compatibilidad = Compatible | Incompatible
+                    deriving Show
+
+esTipoCompatible :: Tipo -> Tipo -> Compatibilidad
+esTipoCompatible t1 t2
+               | t1 == t2 = Compatible
+               | otherwise = Incompatible
+               
+expresionCompatible :: Compatibilidad -> Compatibilidad -> Compatibilidad -> Compatibilidad
+expresionCompatible Compatible Compatible Compatible = Compatible
+expresionCompatible _ _ _ = Incompatible
+
+compatibilidadTipos :: Compatibilidad -> String
+compatibilidadTipos Compatible = ""
+compatibilidadTipos _ = " tiene tipos incorrectos"
+
+compatibilidadOperando :: Compatibilidad -> String
+compatibilidadOperando Compatible = ""
+compatibilidadOperando Incompatible = " <- \"Operando incompatible\""
+
+compatibilidadOperador :: Compatibilidad -> String
+compatibilidadOperador Compatible = ""
+compatibilidadOperador _ = " <- \"Operador incompatible\" "
+
+tipoAtributoDeclarado :: String -> [(String, Tipo)] -> Tipo
+tipoAtributoDeclarado id [] = Entero
+tipoAtributoDeclarado id ((a,b):xs)
+   | id == a = b
+   | otherwise = tipoAtributoDeclarado id xs
+
+tipoFuncionDeclarada :: String -> [(String, Tipo)] -> Tipo
+tipoFuncionDeclarada id [] = Entero
+tipoFuncionDeclarada id ((a,b):xs)
+   | id == a = b
+   | otherwise = tipoAtributoDeclarado id xs   
+}  
+
+
+
+
+
+
+
+
+
+
+
+
+
